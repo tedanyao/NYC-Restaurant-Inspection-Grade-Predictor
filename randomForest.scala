@@ -4,7 +4,7 @@ import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
 
 // Load and parse the data file, converting it to a DataFrame.
-val data = sqlContext.read.format("libsvm").load("hdfs:/user/yyl346/project/d.log")
+val data = sqlContext.read.format("libsvm").load("hdfs:/user/yyl346/project/e.log")
 
 // Index labels, adding metadata to the label column.
 // Fit on whole dataset to include all labels in index.
@@ -43,3 +43,9 @@ val rfModel = model.stages(2).asInstanceOf[RandomForestClassificationModel]
 println("Learned classification forest model:\n" + rfModel.toDebugString)
 rfModel.featureImportances
 rfModel.featureImportances.toArray.zipWithIndex.map(_.swap).sortBy(-_._2).foreach(x => println(x._1 + " -> " + x._2 * 100 + " %"))
+
+import org.apache.spark.mllib.classification.LogisticRegressionWithLBFGS
+import org.apache.spark.mllib.evaluation.MulticlassMetrics
+import org.apache.spark.mllib.regression.LabeledPoint
+import org.apache.spark.mllib.util.MLUtils
+val pairs = predictions.select("prediction", "predictedLabel").map(x => Array(x(0).toString.toDouble, x(1).toString.toDouble))

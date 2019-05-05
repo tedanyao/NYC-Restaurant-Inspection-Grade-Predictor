@@ -3,6 +3,7 @@
 3. what violations contribute most for the grades
 => not about the score, but the relations. ex: if violating A3D, you may got an B.
 4. Is some grading too harsh?
+=> if you get a violation that are possibly to have a rank A but you don't, maybe it is too harsh this time.
 5. Is some yelp rating too biased?
 
 
@@ -16,6 +17,13 @@ category => Vector(1,0,0,0,0,0,0,0)
 
 For vio_code => grade:
 grade (A, B, C) = (3,4,6)
+
+violation => yelp rating
+viocode => 4.5
+viocode => price
+viocode => review_count
+viocode => food category (in yelp)
+
 
 // results
 e.log:

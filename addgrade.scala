@@ -28,6 +28,13 @@ val correctGradeRDD = m1.filter(row => row(25).toString != "").filter(
 correctGradeRDD.persist
 // (99 7th Ave S,12/19/2017,A)
 
+val sampleArr = correctGradeRDD.filter(x => x(25) == "A").takeSample(false, 3000)
+val aRDD = sc.makeRDD(sampleArr)
+val bRDD = correctGradeRDD.filter(x => x(25) == "B")
+val cRDD = correctGradeRDD.filter(x => x(25) == "C")
+val correctGradeRDD = aRDD.union(bRDD).union(cRDD)
+
+
 def printFeature(feature: (Any, Array[Double])): String = {
     val label = feature._1
     var s = label.toString
