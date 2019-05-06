@@ -1,1 +1,38 @@
-bigdata
+1. tools.scala
+Contains useful user-defined functions.
+
+2. joinData.scala
+a. Read DOHMH_New_York_City_Restaurant_Inspection_Results.
+b. Read Yelpdata from our query.
+c. Match the restaurants with correct phone numbers, names, and addresses.
+d. Reduce the results by restaurants and save it into "merge"
+
+3. addgrade.scala
+Some of the inspection results are lost. We need to recover those missing grades.
+We assume there is only 1 grade in a date, and create key-value pair using inspection_date as key to map the grades.
+Note that the "re-open" and "non-operational" INSPECTION_TYPE should not be considered according to the documents of DOHMH.
+
+4. prepareForDecisionTree.scala
+a. Random Forest is used to predict the grades, and provide an analysis for feature importances.
+b. To balance the input space, we keep each category at almost the same amount. We use random sampling of grade A, B, and C.
+c. All inputs are normalized to range [0, 1], and stored as double.
+d. To save all features with the "libsvm" format, we map our RDD to the specified format and then save it.
+
+5. randomForest.scala
+a. Read features as libsvm format.
+b. Setup input features and output labels.
+c. Run random forest model and report its accuracy.
+d. Report the feature importances for further analysis.
+
+6. violationCodeRelations.scala
+a. Calculate violation and score statistics.
+b. Report predicted score given a violation code.
+c. Report probability of each grade given a violation code.
+
+7. remediation.scala
+a. Generate the probability table according to violations
+b. Read the restaurant data
+c. Estimate grades and verify accuracy
+
+7. Target.txt
+list results

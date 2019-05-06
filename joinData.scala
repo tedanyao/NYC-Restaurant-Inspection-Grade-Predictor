@@ -148,7 +148,7 @@ val MERGE_DF = sqlContext.sql("""
     OR (sameName(NAME, yelpname) AND address1 = ADDRESS)
 """)
 MERGE_DF.persist
-// MERGE_DF.write.format("com.databricks.spark.csv").save("hdfs:/user/yyl346/project/merge_save")
+MERGE_DF.write.format("com.databricks.spark.csv").save("hdfs:/user/yyl346/project/merge")
 
 def samePhone(a: String, b: String): Boolean = {
     if (a == "" || b == "")

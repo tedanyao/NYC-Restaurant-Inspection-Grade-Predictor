@@ -74,3 +74,22 @@ def mapTo01(arr: Array[Double], maxVal: Array[Double], minVal: Array[Double]): A
     }
     arr
 }
+
+def vioToInt(a: String): Int = {
+    var sum = 0
+    for (i <- a) {
+        sum = sum * 10 + i - '0'
+    }
+    sum
+}
+
+def vectorizeGrade(str: String): Array[Int] = {
+    if (str == "A")
+        Array(1,0,0)
+    else if (str == "B")
+        Array(0,1,0)
+    else if (str == "C")
+        Array(0,0,1)
+    else
+        Array(0,0,0)
+}

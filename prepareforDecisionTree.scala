@@ -1,7 +1,7 @@
 // spark-shell --packages com.databricks:spark-csv_2.10:1.5.0
-val file = "hdfs:/user/yyl346/project/restaurant.csv"
-val df = sqlContext.read.format("csv").option("header", "true").option("inferschema", "true").load(file)
-df.printSchema
+// val file = "hdfs:/user/yyl346/project/restaurant.csv"
+// val df = sqlContext.read.format("csv").option("header", "true").option("inferschema", "true").load(file)
+// df.printSchema
 // grade
 // A: 7526
 // B: 370
@@ -10,23 +10,16 @@ df.printSchema
 
 // 1. filter out grade==""
 // 2. make a key for grouping food category: (name+address, food_id)
-val correctGradeRDD = MERGE_DF.rdd
-val sampleA = correctGradeRDD.filter(x => x(13) == "A").takeSample(false, 3747) // 72264
-val sampleB = correctGradeRDD.filter(x => x(13) == "B").takeSample(false, 3747) // 11703
+val sampleA = addGradeRDD.filter(x => x(13) == "A").takeSample(false, 3862) // 75349
+val sampleB = addGradeRDD.filter(x => x(13) == "B").takeSample(false, 3862) // 12082
 val aRDD = sc.makeRDD(sampleA)
 val bRDD = sc.makeRDD(sampleB)
-val cRDD = correctGradeRDD.filter(x => x(13) == "C") // 3747
+val cRDD = addGradeRDD.filter(x => x(13) == "C") // 3862
 val correctGradeRDD = aRDD.union(bRDD).union(cRDD).filter(x => x(6) != null).filter(x => x(12) != null)
 
 
 // -----------------------------------------------------
-def vioToInt(a: String): Int = {
-    var sum = 0
-    for (i <- a) {
-        sum = sum * 10 + i - '0'
-    }
-    sum
-}
+// saving features to libsvm format
 val featureRDD = correctGradeRDD.map(
     x => (gradeToInt(x(13).toString),
     Array(x(4).toString.toDouble, // lat
@@ -54,4 +47,4 @@ val theRDD = featureRDD.map(x => (x._1, mapTo01(x._2, arrMax, arrMin)))
 
 val libsvmRDD = theRDD.map(x => printFeature(x))
 libsvmRDD.take(10).foreach(println)
-libsvmRDD.saveAsTextFile("hdfs:/user/yyl346/project/d.log")
+libsvmRDD.saveAsTextFile("hdfs:/user/yyl346/project/features.log")
