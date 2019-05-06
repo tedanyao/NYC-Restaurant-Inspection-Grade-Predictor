@@ -204,11 +204,41 @@ def removeComma(a: Row): Row = {
     myString(a(24)).replace(',','/'))
 }
 
+def compareDate(a: String, b: String): Boolean = {
+    // MM/DD/YY
+    val A = a.split('/')
+    val B = b.split('/')
+    if (A(2) > B(2)) {
+        true
+    } else if (A(2) < B(2)) {
+        false
+    } else if (A(0) > B(0)) {
+        true
+    } else if (A(0) < B(0)) {
+        false
+    } else if (A(1) > B(1)) {
+        true
+    } else if (A(1) < B(1)) {
+        false
+    } else {
+        true
+    }
+}
+
 def violationMerge(a: Row, b: Row): Row = {
     val vioa = a(10).toString
     val viob = b(10).toString
     val newone = vioa + "|" + viob
     val newcount = a(24).toString.toInt + b(24).toString.toInt
+    val aIsBigger = compareDate(a(9).toString, b(9).toString)
+    var insp = b(9)
+    var score = b(12)
+    var grade = b(13)
+    if (aIsBigger) {
+        insp = a(9)
+        score = a(12)
+        grade = a(13)
+    }
     Row(
     a(0),
     a(1),
@@ -219,11 +249,11 @@ def violationMerge(a: Row, b: Row): Row = {
     a(6),
     a(7),
     a(8),
-    a(9),
-    newone,
+    insp, // insp
+    newone, // violation code
     a(11),
-    a(12),
-    a(13),
+    score, // score
+    grade, // grade
     a(14),
     a(15),
     a(16),
@@ -243,4 +273,4 @@ outRDD.persist
 // outRDD.take(3)
 
 
-// outRDD.saveAsTextFile("hdfs:/user/yyl346/project/restaurant")
+outRDD.saveAsTextFile("hdfs:/user/yyl346/project/restaurant")
