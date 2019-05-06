@@ -94,15 +94,58 @@ def correctPhone(a: String): String = {
 }
 sqlContext.udf.register("correctPhone", (a:String) => correctPhone(a))
 
+def sameName(a: String, b: String): Boolean = {
+    var arrA = a.split("\\s+")
+    var arrB = b.split("\\s+")
+    if (arrA.length > arrB.length) {
+        arrA = b.split("\\s+")
+        arrB = a.split("\\s+")
+    }
+    var matchNum = 0
+    for (i <- 0 to arrA.length - 1) {
+        var found = 0
+        var k = 0
+        var j = 0
+        while (j < arrB.length && found == 0) {
+            if (arrA(i) != "" && arrB(j) != "" && arrA(i) == arrB(j)) {
+                found = 1
+                k = j
+                matchNum += 1
+            }
+            j += 1
+        }
+        if (found == 1) {
+            arrB(k) = ""
+        }
+    }
+    val score = arrA.length * 0.8
+    if (matchNum >= score.toInt) {
+        true
+    } else {
+        false
+    }
+}
+sqlContext.udf.register("sameName", (a:String, b:String) => sameName(a,b))
 
 val MERGE_DF = sqlContext.sql("""
     SELECT DISTINCT PHONE, display_phone, NAME, ADDRESS, latitude, longitude,
     price, rating, review_count, INSPECTION_DATE, VIOLATION_CODE,
     address1, SCORE, GRADE, INSPECTION_TYPE, CUISINE_DESCRIPTION,
-    ACTION, CRITICAL_FLAG, yelpname,
+    CRITICAL_FLAG, yelpname,
     city, country, state, zip_code, BORO, ZIPCODE
     FROM YELP_DF, INSP_DF
-    WHERE correctPhone(PHONE) = correctPhone(display_phone) AND address1 = ADDRESS
+    WHERE (correctPhone(PHONE) = correctPhone(display_phone) AND address1 = ADDRESS)
+""")
+
+val MERGE_DF = sqlContext.sql("""
+    SELECT DISTINCT PHONE, display_phone, NAME, ADDRESS, latitude, longitude,
+    price, rating, review_count, INSPECTION_DATE, VIOLATION_CODE,
+    address1, SCORE, GRADE, INSPECTION_TYPE, CUISINE_DESCRIPTION,
+    CRITICAL_FLAG, yelpname,
+    city, country, state, zip_code, BORO, ZIPCODE
+    FROM YELP_DF, INSP_DF
+    WHERE (correctPhone(PHONE) = correctPhone(display_phone) AND address1 = ADDRESS)
+    OR (sameName(NAME, yelpname) AND address1 = ADDRESS)
 """)
 MERGE_DF.persist
 // MERGE_DF.write.format("com.databricks.spark.csv").save("hdfs:/user/yyl346/project/merge_save")
@@ -119,50 +162,85 @@ def samePhone(a: String, b: String): Boolean = {
         s == a
     }
 }
+
+val myRDD = MERGE_DF.withColumn("violation_count", lit(1)).rdd.map(x => (x(0).toString, x))
+myRDD.persist
+
+def myString(a: Any): String = {
+    if (a == null) {
+        ""
+    } else {
+        a.toString
+    }
+}
 import org.apache.spark.sql._
+
+def removeComma(a: Row): Row = {
+    Row(
+    myString(a(0)).replace(',','/'),
+    myString(a(1)).replace(',','/'),
+    myString(a(2)).replace(',','/'),
+    myString(a(3)).replace(',','/'),
+    myString(a(4)).replace(',','/'),
+    myString(a(5)).replace(',','/'),
+    myString(a(6)).replace(',','/'),
+    myString(a(7)).replace(',','/'),
+    myString(a(8)).replace(',','/'),
+    myString(a(9)).replace(',','/'),
+    myString(a(10)).replace(',','/'),
+    myString(a(11)).replace(',','/'),
+    myString(a(12)).replace(',','/'),
+    myString(a(13)).replace(',','/'),
+    myString(a(14)).replace(',','/'),
+    myString(a(15)).replace(',','/'),
+    myString(a(16)).replace(',','/'),
+    myString(a(17)).replace(',','/'),
+    myString(a(18)).replace(',','/'),
+    myString(a(19)).replace(',','/'),
+    myString(a(20)).replace(',','/'),
+    myString(a(21)).replace(',','/'),
+    myString(a(22)).replace(',','/'),
+    myString(a(23)).replace(',','/'),
+    myString(a(24)).replace(',','/'))
+}
+
 def violationMerge(a: Row, b: Row): Row = {
     val vioa = a(10).toString
     val viob = b(10).toString
     val newone = vioa + "|" + viob
-    val newcount = a(25).toString.toInt + b(25).toString.toInt
-    Row(a(0),a(1),a(2),a(3),a(4),a(5),a(6),a(7),a(8),a(9),newone,
-    a(11),a(12),a(13),a(14),a(15),a(16),a(17),a(18),
-    a(19),a(20),a(21),a(22),a(23),a(24), newcount)
+    val newcount = a(24).toString.toInt + b(24).toString.toInt
+    Row(
+    a(0),
+    a(1),
+    a(2),
+    a(3),
+    a(4),
+    a(5),
+    a(6),
+    a(7),
+    a(8),
+    a(9),
+    newone,
+    a(11),
+    a(12),
+    a(13),
+    a(14),
+    a(15),
+    a(16),
+    a(17),
+    a(18),
+    a(19),
+    a(20),
+    a(21),
+    a(22),
+    a(23),
+    newcount)
 }
 
-val myRDD = MERGE_DF.withColumn("violation_count", lit(1)).rdd.map(x => (x(0).toString, x))
-
-val my2RDD = myRDD.reduceByKey((a,b) => violationMerge(a,b))
+val my2RDD = myRDD.map(x => (x._1, removeComma(x._2))).reduceByKey((a,b) => violationMerge(a,b))
 val outRDD = my2RDD.map(x => x._2)
 outRDD.persist
-// val out2RDD = outRDD.map(x =>
-//         x(0).toString + ","
-//         + x(1).toString + ","
-//         + x(2).toString + ","
-//         + x(3).toString + ","
-//         + x(4).toString + ","
-//         + x(5).toString + ","
-//         + priceToInt(x(6).toString) + ","
-//         + x(7).toString + ","
-//         + x(8).toString + ","
-//         + x(9).toString + ","
-//         + x(10).toString + ","
-//         + x(11).toString + ","
-//         + x(12).toString + ","
-//         + x(13).toString + ","
-//         + x(14).toString + ","
-//         + x(15).toString + ","
-//         + x(16).toString + ","
-//         + x(17).toString + ","
-//         + x(18).toString + ","
-//         + x(19).toString + ","
-//         + x(20).toString + ","
-//         + x(21).toString + ","
-//         + x(22).toString + ","
-//         + x(23).toString + ","
-//         + x(24).toString + ","
-//         + x(25).toString + ","
-//         + x(26).toString
-// )
-// out2RDD.take(3)
-outRDD.saveAsTextFile("hdfs:/user/yyl346/project/merge_restaurant")
+// outRDD.take(3)
+
+
+// outRDD.saveAsTextFile("hdfs:/user/yyl346/project/merge_restaurant")
