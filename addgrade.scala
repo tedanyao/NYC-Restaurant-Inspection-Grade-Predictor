@@ -31,28 +31,28 @@ val cRDD = correctGradeRDD.filter(x => x(25) == "C")
 val correctGradeRDD = aRDD.union(bRDD).union(cRDD)
 
 
-def printFeature(feature: (Any, Array[Double])): String = {
-    val label = feature._1
-    var s = label.toString
-    var index = 0
-    for (i <- feature._2) {
-        index += 1
-        s += (" " + index + ":" + i.toString)
-    }
-    s
-}
-
-def mapTo01(arr: Array[Double], maxVal: Array[Double], minVal: Array[Double]): Array[Double] = {
-    for (i <- 0 to arr.length - 1) {
-        if (maxVal(i) == minVal(i)) {
-            arr(i) = arr(i)
-        } else {
-            arr(i) = (arr(i) - minVal(i)) / (maxVal(i) - minVal(i))
-        }
-
-    }
-    arr
-}
+// def printFeature(feature: (Any, Array[Double])): String = {
+//     val label = feature._1
+//     var s = label.toString
+//     var index = 0
+//     for (i <- feature._2) {
+//         index += 1
+//         s += (" " + index + ":" + i.toString)
+//     }
+//     s
+// }
+//
+// def mapTo01(arr: Array[Double], maxVal: Array[Double], minVal: Array[Double]): Array[Double] = {
+//     for (i <- 0 to arr.length - 1) {
+//         if (maxVal(i) == minVal(i)) {
+//             arr(i) = arr(i)
+//         } else {
+//             arr(i) = (arr(i) - minVal(i)) / (maxVal(i) - minVal(i))
+//         }
+//
+//     }
+//     arr
+// }
 
 // --------------------------------------------------------------------------------
 val featureRDD = correctGradeRDD.map(
