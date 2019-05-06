@@ -1,11 +1,7 @@
 // spark-shell --packages com.databricks:spark-csv_2.10:1.5.0
-val file = "hdfs:/user/yyl346/project/merge.csv"
+val file = "hdfs:/user/yyl346/project/restaurant.csv"
 val df = sqlContext.read.format("csv").option("header", "true").option("inferschema", "true").load(file)
 df.printSchema
-
-def convertRow(row: org.apache.spark.sql.Row): Seq[Any] = {
-    row.toSeq
-}
 
 val dfRDD = df.rdd.filter(row => row(25).toString != "").map(_.toSeq)
 val gradeKV = dfRDD.map(row => (row(11).toString + row(21).toString, row(25).toString))

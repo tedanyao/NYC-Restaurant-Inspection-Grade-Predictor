@@ -243,4 +243,4 @@ outRDD.persist
 // outRDD.take(3)
 
 
-// outRDD.saveAsTextFile("hdfs:/user/yyl346/project/merge_restaurant")
+// outRDD.saveAsTextFile("hdfs:/user/yyl346/project/restaurant")

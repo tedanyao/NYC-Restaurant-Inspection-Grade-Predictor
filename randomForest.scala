@@ -4,7 +4,7 @@ import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.{IndexToString, StringIndexer, VectorIndexer}
 
 // Load and parse the data file, converting it to a DataFrame.
-val data = sqlContext.read.format("libsvm").load("hdfs:/user/yyl346/project/e.log")
+val data = sqlContext.read.format("libsvm").load("hdfs:/user/yyl346/project/d.log")
 
 // Index labels, adding metadata to the label column.
 // Fit on whole dataset to include all labels in index.
