@@ -1,6 +1,6 @@
 1. tools.scala
 Contains useful user-defined functions.
-
+ 
 2. joinData.scala
 a. Read DOHMH_New_York_City_Restaurant_Inspection_Results.
 b. Read Yelpdata from our query.
