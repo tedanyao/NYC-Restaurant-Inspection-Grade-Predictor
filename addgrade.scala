@@ -19,37 +19,28 @@ m1.persist
 val addGradeRDD = m1.filter(row => row(13).toString != "").filter(
     row => !row(14).toString.contains("reopen") && !row(14).toString.contains("Non-operational")) // use this
 addGradeRDD.persist
-// (99 7th Ave S,12/19/2017,A)
-//
-// val sampleArr = addGradeRDD.filter(x => x(13) == "A").takeSample(false, 3000)
-// val aRDD = sc.makeRDD(sampleArr)
-// val bRDD = addGradeRDD.filter(x => x(13) == "B")
-// val cRDD = addGradeRDD.filter(x => x(13) == "C")
-// val correctGradeRDD = aRDD.union(bRDD).union(cRDD)
 
+def printFeature(feature: (Any, Array[Double])): String = {
+    val label = feature._1
+    var s = label.toString
+    var index = 0
+    for (i <- feature._2) {
+        index += 1
+        s += (" " + index + ":" + i.toString)
+    }
+    s
+}
 
-// def printFeature(feature: (Any, Array[Double])): String = {
-//     val label = feature._1
-//     var s = label.toString
-//     var index = 0
-//     for (i <- feature._2) {
-//         index += 1
-//         s += (" " + index + ":" + i.toString)
-//     }
-//     s
-// }
-//
-// def mapTo01(arr: Array[Double], maxVal: Array[Double], minVal: Array[Double]): Array[Double] = {
-//     for (i <- 0 to arr.length - 1) {
-//         if (maxVal(i) == minVal(i)) {
-//             arr(i) = arr(i)
-//         } else {
-//             arr(i) = (arr(i) - minVal(i)) / (maxVal(i) - minVal(i))
-//         }
-//
-//     }
-//     arr
-// }
+def mapTo01(arr: Array[Double], maxVal: Array[Double], minVal: Array[Double]): Array[Double] = {
+    for (i <- 0 to arr.length - 1) {
+        if (maxVal(i) == minVal(i)) {
+            arr(i) = arr(i)
+        } else {
+            arr(i) = (arr(i) - minVal(i)) / (maxVal(i) - minVal(i))
+        }
+    }
+    arr
+}
 
 // --------------------------------------------------------------------------------
 // val featureRDD = correctGradeRDD.map(
@@ -75,7 +66,7 @@ addGradeRDD.persist
 //
 // val libsvmRDD = theRDD.map(x => printFeature(x))
 // libsvmRDD.take(10).foreach(println)
-// libsvmRDD.saveAsTextFile("hdfs:/user/yyl346/project/e.log")
+// libsvmRDD.saveAsTextFile("hdfs:/user/yyl346/project/.log")
 
 
 // // --------------------------------------------------------------------------------
@@ -105,7 +96,7 @@ addGradeRDD.persist
 // libsvmRDD.take(10).foreach(println)
 // libsvmRDD.saveAsTextFile("hdfs:/user/yyl346/project/d.log")
 
-// // --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
 // val vioRDD = correctGradeRDD.map(x => (x(29).toString, x(24).toString, x(25).toString)).
 //     filter(x => x._1 != "").
 //     filter(x => x._2 != "null" && x._2.toInt >= 0).
@@ -119,29 +110,11 @@ addGradeRDD.persist
 //     mapValues(x => (x, scoreToGrade(x)))
 //
 // vioGroupRDD.sortBy(x => x._1).collect.foreach(println)
-// // --------------------------------------------------------------------------------
-// val vioRDD = correctGradeRDD.map(x => (x(29).toString, x(24).toString, x(25).toString)).
-//     filter(x => x._1 != "").
-//     filter(x => x._2 != "null" && x._2.toInt >= 0).
-//     filter(x => x._3 == "A" || x._3 == "B" || x._3 == "C")
-//     // map(x => x._3).
-//     // distinct.sortBy(_.toString).collect.foreach(println)
-//     // take(240).foreach(println)
-// // def vectorizeGrade(str: String): Array[Int] = {
-// //     if (str == "A")
-// //         Array(1,0,0)
-// //     else if (str == "B")
-// //         Array(0,1,0)
-// //     else if (str == "C")
-// //         Array(0,0,1)
-// //     else
-// //         Array(0,0,0)
-// // }
+// --------------------------------------------------------------------------------
 // val vioGroupRDD = vioRDD.map(x => (x._1, vectorizeGrade(x._3))).
 //     reduceByKey((a, b) => Array(a(0)+b(0), a(1)+b(1), a(2)+b(2))).
 //     mapValues(arr => (arr(0).toDouble / arr.sum, arr(1).toDouble / arr.sum, arr(2).toDouble / arr.sum))
-//
-// vioGroupRDD.sortBy(x => x._1).collect.foreach(println)
+
 // just for reference
 //  0|-- food: string (nullable = true)
 //  1|-- latitude: double (nullable = true)
